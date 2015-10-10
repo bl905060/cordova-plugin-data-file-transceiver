@@ -26,7 +26,7 @@
     [self success:result callbackId:callbackId];
 }
 
-- (void)startRequest {
+/*- (void)startRequest {
     
     NSString *strURL = @"http://127.0.0.1/demo_post.php";
     strURL = [strURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
@@ -58,7 +58,7 @@
     
     //self.Label1.text = @"up load is Success!";
     /*id jsonObj = [NSJSONSerialization JSONObjectWithData:self.datas options:NSJSONReadingMutableContainers error:&error];
-     NSLog(@"%@", jsonObj);*/
+     NSLog(@"%@", jsonObj);
     NSDictionary *response = [NSJSONSerialization JSONObjectWithData:self.datas options:NSJSONReadingAllowFragments error:&error];
     NSString *error_desc = @"error_desc";
     NSString *labelString = @"";
@@ -68,5 +68,5 @@
     NSLog(@"%@", [status objectForKey: error_desc]);
     self.Label1.text = [labelString stringByAppendingFormat:@"%@%@", @"error_desc: ", [status objectForKey:error_desc]];
     
-}
+}*/
 @end

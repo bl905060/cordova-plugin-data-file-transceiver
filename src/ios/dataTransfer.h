@@ -8,7 +8,7 @@
 
 #import <Cordova/CDV.h>
 
-@interface ConvertMedia : CDVPlugin
+@interface dataTransfer : CDVPlugin
 
 - (void) upload:(CDVInvokedUrlCommand*)command;
 
