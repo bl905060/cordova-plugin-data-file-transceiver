@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+	id="cn.edu.hdu.cordova.dataTransfer" version="0.0.1">
+
+<name>Cordova data upload plugin</name>
+
+<license>HDU</license>
+
+<keywords>dataTransfer</keywords>
+
+<description>Upload local data and file to remote server</description>
+
+<author>Leibi</author>
+
+<engines>
+	<engine name="cordova" version=">=3.3.0" />
+</engines>
+
+<js-module src="www/dataTransfer.js" name="dataTransfer.js">
+	<clobbers target="dataTransfer" />
+</js-module>
+
+<!-- ios -->
+<platform name="ios">
+	<config-file target="config.xml" parent="/widget">
+		<feature name="dataTransfer">
+			<param name="ios-package" value="dataTransfer" />
+		</feature>
+	</config-file>
+
+	<header-file src="src/ios/dataTransfer.h" />
+	<source-file src="src/ios/dataTransfer.m" />
+</platform>
+</plugin>
