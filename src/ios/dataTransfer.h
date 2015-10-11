@@ -11,8 +11,8 @@
 @interface dataTransfer : CDVPlugin
 
 @property (strong, nonatomic) NSMutableData *datas;
+@property(strong, nonatomic) NSString* callbackID;
 
 - (void) upload:(CDVInvokedUrlCommand*)command;
 
 @end
-

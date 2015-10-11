@@ -9,26 +9,28 @@
 #import "dataTransfer.h"
 
 @implementation dataTransfer
+@synthesize callbackID;
 
-- (void) upload:(CDVInvokedUrlCommand*)command
+- (void)upload:(CDVInvokedUrlCommand*)command
 {
     
-    NSString* callbackId = [command callbackId];
+    //NSString* callbackId = [command callbackId];
+    self.callbackID = [command callbackId];
     NSString* postURL = [[command arguments] objectAtIndex:0];
-    NSString* msg = [NSString stringWithFormat: @"Hello, %@", postURL];
+    //NSString* msg = [NSString stringWithFormat: @"Hello, %@", postURL];
     
-    CDVPluginResult* result = [CDVPluginResult
-                               resultWithStatus:CDVCommandStatus_OK
-                               messageAsString:msg];
+    /*CDVPluginResult* result = [CDVPluginResult
+     resultWithStatus:CDVCommandStatus_OK
+     messageAsString:msg];*/
     
-    NSLog(@"%@", postURL);
+    [self startRequest:postURL];
     
-    [self success:result callbackId:callbackId];
+    //[self success:result callbackId:callbackId];
 }
 
-- (void)startRequest {
+- (void)startRequest:(NSString *)postURL {
     
-    NSString *strURL = @"http://127.0.0.1/demo_post.php";
+    NSString *strURL = postURL;
     strURL = [strURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSURL *url = [NSURL URLWithString:strURL];
     NSString *post = [NSString stringWithFormat:@"testname=%@&testpasscode=%@",@"bl905060",@"12345678"];
@@ -56,16 +58,19 @@
     NSLog(@"upload is done!");
     NSError *error;
     
-    //self.Label1.text = @"up load is Success!";
-    /*id jsonObj = [NSJSONSerialization JSONObjectWithData:self.datas options:NSJSONReadingMutableContainers error:&error];
-     NSLog(@"%@", jsonObj);*/
     NSDictionary *response = [NSJSONSerialization JSONObjectWithData:self.datas options:NSJSONReadingAllowFragments error:&error];
     NSString *error_desc = @"error_desc";
-    NSString *labelString = @"";
     NSDictionary *status = [response objectForKey:@"status"];
     
     NSLog(@"%@", status);
     NSLog(@"%@", [status objectForKey: error_desc]);
-    //self.Label1.text = [labelString stringByAppendingFormat:@"%@%@", @"error_desc: ", [status objectForKey:error_desc]];
+    
+    NSString* callbackId = self.callbackID;
+    
+    CDVPluginResult* result = [CDVPluginResult
+                               resultWithStatus:CDVCommandStatus_OK
+                               messageAsDictionary:response];
+    
+    [self success:result callbackId:callbackId];
 }
 @end
