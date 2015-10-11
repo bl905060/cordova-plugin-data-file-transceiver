@@ -10,8 +10,9 @@
 
 @interface dataTransfer : CDVPlugin
 
-- (void) upload:(CDVInvokedUrlCommand*)command;
+@property (strong, nonatomic) NSMutableData *datas;
 
+- (void) upload:(CDVInvokedUrlCommand*)command;
 
 @end
 
