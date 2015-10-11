@@ -66,7 +66,6 @@
     
     NSLog(@"%@", status);
     NSLog(@"%@", [status objectForKey: error_desc]);
-    self.Label1.text = [labelString stringByAppendingFormat:@"%@%@", @"error_desc: ", [status objectForKey:error_desc]];
-    
+    //self.Label1.text = [labelString stringByAppendingFormat:@"%@%@", @"error_desc: ", [status objectForKey:error_desc]];
 }
 @end
