@@ -11,24 +11,18 @@
 @implementation dataTransfer
 @synthesize callbackID;
 
-- (void)upload:(CDVInvokedUrlCommand*)command
-{
-    
-    //NSString* callbackId = [command callbackId];
+- (void)upload:(CDVInvokedUrlCommand *)command {
     self.callbackID = [command callbackId];
-    NSString* postURL = [[command arguments] objectAtIndex:0];
-    //NSString* msg = [NSString stringWithFormat: @"Hello, %@", postURL];
+    NSString *postURL = [[command arguments] objectAtIndex:0];
+    NSDictionary *postData = [[command arguments] objectAtIndex:1];
     
-    /*CDVPluginResult* result = [CDVPluginResult
-     resultWithStatus:CDVCommandStatus_OK
-     messageAsString:msg];*/
+    NSLog(@"%@", postURL);
+    NSLog(@"%@", postData);
     
-    [self startRequest:postURL];
-    
-    //[self success:result callbackId:callbackId];
+    [self startRequest:postURL withpostData:postData];
 }
 
-- (void)startRequest:(NSString *)postURL {
+- (void)startRequest:(NSString *)postURL withpostData:(NSDictionary *)postDatas {
     
     NSString *strURL = postURL;
     strURL = [strURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
