@@ -1,11 +1,3 @@
-//
-//  dataTransfer.m
-//  showapp
-//
-//  Created by LEIBI on 10/10/15.
-//
-//
-
 #import "dataTransfer.h"
 
 @implementation dataTransfer
@@ -90,10 +82,10 @@
     
     NSString* callbackId = self.callbackID;
     
-    CDVPluginResult* result = [CDVPluginResult
-                               resultWithStatus:CDVCommandStatus_OK
-                               messageAsDictionary:response];
+    CDVPluginResult* pluginResult = [CDVPluginResult
+                                     resultWithStatus:CDVCommandStatus_OK
+                                     messageAsDictionary:response];
     
-    [self success:result callbackId:callbackId];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }
 @end
