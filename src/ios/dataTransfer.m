@@ -19,29 +19,58 @@
     NSLog(@"%@", postURL);
     NSLog(@"%@", postData);
     
-    [self startRequest:postURL withpostData:postData];
+    [self startRequest:postURL withPostData:postData];
 }
 
-- (void)startRequest:(NSString *)postURL withpostData:(NSDictionary *)postDatas {
+- (void)startRequest:(NSString *)strURL withPostData:(NSDictionary *)data {
+    NSLog(@"startRequest!");
     
-    NSString *strURL = postURL;
     strURL = [strURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    NSURL *url = [NSURL URLWithString:strURL];
-    NSString *post = [NSString stringWithFormat:@"testname=%@&testpasscode=%@",@"bl905060",@"12345678"];
-    NSData *postData = [post dataUsingEncoding:NSUTF8StringEncoding];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    NSURL *postURL = [NSURL URLWithString:strURL];
+    NSString *postString = [[NSString alloc] init];
+    NSString *strData = [[NSString alloc] init];
+    NSData *jsonData = [[NSData alloc] init];
+    NSString *json;
+    NSError *error;
+    
+    NSEnumerator *dataKey = [data keyEnumerator];
+    for (NSObject *param in dataKey) {
+        //NSLog(@"%@", [NSJSONSerialization isValidJSONObject:[data objectForKey:param]]?@"YES":@"NO");
+        if ([NSJSONSerialization isValidJSONObject:[data objectForKey:param]]) {
+            jsonData = [NSJSONSerialization dataWithJSONObject:[data objectForKey:param] options:NSJSONWritingPrettyPrinted error:&error];
+            json = [[NSString alloc] initWithData: jsonData encoding:NSUTF8StringEncoding];
+            strData = [NSString stringWithFormat:@"&%@=%@", param, json];
+            postString = [postString stringByAppendingString:strData];
+        } else {
+            strData = [NSString stringWithFormat:@"&%@=%@", param, [data objectForKey:param]];
+            postString = [postString stringByAppendingString:strData];
+        }
+    }
+    
+    NSLog(@"%@", postString);
+    
+    NSLog(@"Traversal success!");
+    
+    NSString *httpHeader = @"Content-type";
+    NSString *httpValue = @"application/x-www-form-urlencoded";
+    httpHeader = [httpHeader stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    httpValue = [httpValue stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    
+    NSData *postData = [postString dataUsingEncoding:NSUTF8StringEncoding];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:postURL];
     [request setHTTPMethod:@"POST"];
     [request setHTTPBody:postData];
+    //[request setValue:httpValue forHTTPHeaderField:httpHeader];
     
     NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
     
     if (connection) {
-        self.datas = [NSMutableData new];
+        self.responseData = [NSMutableData new];
     }
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(nonnull NSData *)data {
-    [self.datas appendData:data];
+    [self.responseData appendData:data];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(nonnull NSError *)error {
@@ -52,12 +81,12 @@
     NSLog(@"upload is done!");
     NSError *error;
     
-    NSDictionary *response = [NSJSONSerialization JSONObjectWithData:self.datas options:NSJSONReadingAllowFragments error:&error];
-    NSString *error_desc = @"error_desc";
-    NSDictionary *status = [response objectForKey:@"status"];
+    NSDictionary *response = [NSJSONSerialization JSONObjectWithData:self.responseData options:NSJSONReadingAllowFragments error:&error];
     
-    NSLog(@"%@", status);
-    NSLog(@"%@", [status objectForKey: error_desc]);
+    //NSDictionary *status = [response objectForKey:@"status"];
+    //NSString *error_desc = @"error_desc";
+    //NSLog(@"%@", status);
+    //NSLog(@"%@", [status objectForKey: error_desc]);
     
     NSString* callbackId = self.callbackID;
     
