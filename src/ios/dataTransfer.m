@@ -8,12 +8,25 @@
     NSString *postURL = [[command arguments] objectAtIndex:0];
     NSDictionary *postData = [[command arguments] objectAtIndex:1];
     
+    NSString *photoPath = [[command arguments] objectAtIndex:2];
+    NSFileManager *file = [NSFileManager defaultManager];
+    
+    if ([file fileExistsAtPath:photoPath] == YES) {
+        NSLog(@"file is Exists!");
+        [file contentsAtPath:photoPath];
+    }
+    
+    NSDictionary *fileAttr = [file attributesOfItemAtPath:photoPath error:NULL];
+    if(fileAttr!=nil){
+        NSLog(@"文件大小:%llu bytes",[[fileAttr objectForKey:NSFileSize] unsignedLongLongValue]);
+    }
+    
+    
     NSLog(@"%@", postURL);
     NSLog(@"%@", postData);
     
-    [self startRequest:postURL withPostData:postData];
+    //[self startRequest:postURL withPostData:postData];
 }
-
 - (void)startRequest:(NSString *)strURL withPostData:(NSDictionary *)data {
     NSLog(@"startRequest!");
     
