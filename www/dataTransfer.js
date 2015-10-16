@@ -6,6 +6,9 @@ module.exports = {
         if (postData.photoURL != undefined) photoURL = postData.photoURL;
         if (postData.voiceURL != undefined) voiceURL = postData.voiceURL;
         
+        alert(photoURL);
+        alert(voiceURL);
+        
         cordova.exec(successCallback,
                      errorCallback,
                      "dataTransfer",
