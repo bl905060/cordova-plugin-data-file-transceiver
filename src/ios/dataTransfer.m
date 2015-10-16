@@ -7,10 +7,14 @@
     self.callbackID = [command callbackId];
     NSString *postURL = [[command arguments] objectAtIndex:0];
     NSDictionary *postData = [[command arguments] objectAtIndex:1];
-    NSMutableString *filePath = [[NSMutableString alloc] initWithString: [[command arguments] objectAtIndex:2]];
-    [filePath deleteCharactersInRange:NSMakeRange(0, 7)];
+    NSArray *photoURL = [[NSArray alloc] initWithArray:[[command arguments] objectAtIndex:2]];
+    NSArray *voiceURL = [[NSArray alloc] initWithArray:[[command arguments] objectAtIndex:3]];
+    //[filePath deleteCharactersInRange:NSMakeRange(0, 7)];
     
-    NSLog(@"%@", filePath);
+    NSLog(@"%@", photoURL);
+    NSLog(@"%@", voiceURL);
+    NSLog(@"%@", postURL);
+    NSLog(@"%@", postData);
     
     /*NSFileManager *file = [NSFileManager defaultManager];
      if ([file fileExistsAtPath:strPath] == YES) {
@@ -23,11 +27,7 @@
      NSLog(@"文件大小:%llu bytes",[[fileAttr objectForKey:NSFileSize] unsignedLongLongValue]);
      }*/
     
-    
-    NSLog(@"%@", postURL);
-    NSLog(@"%@", postData);
-    
-    [self startRequest:postURL withPostData:postData withPath:filePath];
+    //[self startRequest:postURL withPostData:postData withPath:filePath];
 }
 
 - (void)startRequest:(NSString *)strURL withPostData:(NSDictionary *)data withPath:(NSString *)path{
