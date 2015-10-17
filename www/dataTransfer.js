@@ -12,8 +12,8 @@ module.exports = {
             postData.voiceURL = undefined;
         }
             
-        alert(photoURL);
-        alert(voiceURL);
+        //alert(photoURL);
+        //alert(voiceURL);
         
         cordova.exec(successCallback,
                      errorCallback,
