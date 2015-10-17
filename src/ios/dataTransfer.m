@@ -27,22 +27,26 @@
      NSLog(@"文件大小:%llu bytes",[[fileAttr objectForKey:NSFileSize] unsignedLongLongValue]);
      }*/
     
-    //[self startRequest:postURL withPostData:postData withPath:filePath];
+    [self startRequest:postURL withPostData:postData withPhotoPath:photoURL withVoicePath:voiceURL];
 }
 
-- (void)startRequest:(NSString *)strURL withPostData:(NSDictionary *)data withPath:(NSString *)path{
+- (void)startRequest:(NSString *)strURL
+        withPostData:(NSDictionary *)data
+       withPhotoPath:(NSArray *)photoURL
+       withVoicePath:(NSArray *)voiceURL {
     NSLog(@"startRequest!");
     
     strURL = [strURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: [NSURL URLWithString:strURL]];
     NSString *postString = [[NSString alloc] init];
     NSString *strData = [[NSString alloc] init];
     NSData *jsonData = [[NSData alloc] init];
     NSString *json;
     NSError *error;
     
-    NSString *TWITTERFON_FROM_BOUNDARY = @"0xKhTmLbOuNdAry";
-    NSString *MPboundary = [[NSString alloc] initWithFormat:@"--%@", TWITTERFON_FROM_BOUNDARY];
-    NSString *endMPboundary = [[NSString alloc] initWithFormat:@"%@--", MPboundary];
+    NSString *boundaryMark = @"0xAAbbCCddEE";
+    NSString *startBoundary = [[NSString alloc] initWithFormat:@"--%@", boundaryMark];
+    NSString *endBoundary = [[NSString alloc] initWithFormat:@"%@--", startBoundary];
     
     NSFileManager *file = [NSFileManager defaultManager];
     if ([file fileExistsAtPath:path] == YES) {
@@ -59,13 +63,13 @@
     NSString *fname = [file displayNameAtPath:path];
     NSLog(@"file name: %@", fname);
     
-    [body appendFormat:@"%@\r\n", MPboundary];
+    [body appendFormat:@"%@\r\n", startBoundary];
     [body appendFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n", key];
     [body appendFormat:@"%@\r\n", val];
-    [body appendFormat:@"%@\r\n", MPboundary];
+    [body appendFormat:@"%@\r\n", startBoundary];
     [body appendFormat:@"Content-Disposition: from-data; name=\"%@\"; filename=\"%@\"\r\n", input, fname];
     [body appendFormat:@"Content-Type: image/jpeg, image/gif, image/pjpeg\r\n\r\n"];
-    NSString *end = [[NSString alloc] initWithFormat:@"\r\n%@", endMPboundary];
+    NSString *end = [[NSString alloc] initWithFormat:@"\r\n%@", endBoundary];
     
     NSMutableData *myRequestData = [NSMutableData data];
     [myRequestData appendData:[body dataUsingEncoding:NSUTF8StringEncoding]];
@@ -96,10 +100,10 @@
     httpHeader = [httpHeader stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     httpValue = [httpValue stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     
-    NSString *content = [[NSString alloc] initWithFormat:@"multipart/form-data; boundary=%@", TWITTERFON_FROM_BOUNDARY];
+    NSString *content = [[NSString alloc] initWithFormat:@"multipart/form-data; boundary=%@", boundaryMark];
     
     //NSData *postData = [postString dataUsingEncoding:NSUTF8StringEncoding];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: [NSURL URLWithString:strURL]];
+    
     [request setValue:content forHTTPHeaderField:@"Content-Type"];
     [request setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[myRequestData length]] forHTTPHeaderField:@"Content-Length"];
     
