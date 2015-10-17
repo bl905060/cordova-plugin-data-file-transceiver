@@ -9,7 +9,6 @@
     NSDictionary *postData = [[command arguments] objectAtIndex:1];
     NSArray *photoURL = [[NSArray alloc] initWithArray:[[command arguments] objectAtIndex:2]];
     NSArray *voiceURL = [[NSArray alloc] initWithArray:[[command arguments] objectAtIndex:3]];
-    //[filePath deleteCharactersInRange:NSMakeRange(0, 7)];
     
     NSLog(@"%@", photoURL);
     NSLog(@"%@", voiceURL);
@@ -31,85 +30,74 @@
 }
 
 - (void)startRequest:(NSString *)strURL
-        withPostData:(NSDictionary *)data
+        withPostData:(NSDictionary *)postData
        withPhotoPath:(NSArray *)photoURL
        withVoicePath:(NSArray *)voiceURL {
     NSLog(@"startRequest!");
     
     strURL = [strURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: [NSURL URLWithString:strURL]];
-    NSString *postString = [[NSString alloc] init];
-    NSString *strData = [[NSString alloc] init];
+    NSMutableData *requestData = [NSMutableData data];
     NSData *jsonData = [[NSData alloc] init];
-    NSString *json;
+    NSString *jsonStr;
     NSError *error;
     
     NSString *boundaryMark = @"0xAAbbCCddEE";
     NSString *startBoundary = [[NSString alloc] initWithFormat:@"--%@", boundaryMark];
     NSString *endBoundary = [[NSString alloc] initWithFormat:@"%@--", startBoundary];
+    NSMutableString *body = [[NSMutableString alloc] init];
+    NSEnumerator *dataKey = [postData keyEnumerator];
     
+    for (NSObject *param in dataKey) {
+        NSLog(@"%@", [NSJSONSerialization isValidJSONObject:[postData objectForKey:param]]?@"YES":@"NO");
+        if ([NSJSONSerialization isValidJSONObject:[postData objectForKey:param]]) {
+            jsonData = [NSJSONSerialization dataWithJSONObject:[postData objectForKey:param] options:NSJSONWritingPrettyPrinted error:&error];
+            jsonStr = [[NSString alloc] initWithData: jsonData encoding:NSUTF8StringEncoding];
+            [body appendFormat:@"%@\r\n", startBoundary];
+            [body appendFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n", param];
+            [body appendFormat:@"%@\r\n", jsonStr];
+        } else {
+            [body appendFormat:@"%@\r\n", startBoundary];
+            [body appendFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n", param];
+            [body appendFormat:@"%@\r\n", [postData objectForKey:param]];
+        }
+    }
+    
+    NSLog(@"%@", body);
+    
+    NSMutableString *path = [[NSMutableString alloc] initWithString:[photoURL objectAtIndex:1]];
+    
+    [path deleteCharactersInRange:NSMakeRange(0, 7)];
     NSFileManager *file = [NSFileManager defaultManager];
     if ([file fileExistsAtPath:path] == YES) {
         NSLog(@"file is exists!");
         [file contentsAtPath:path];
     }
-    
     NSData *photo = [[NSData alloc] initWithContentsOfFile:path];
-    NSMutableString *body = [[NSMutableString alloc] init];
     
-    NSString *key = @"testname";
-    NSString *val = @"123456";
     NSString *input = @"file";
     NSString *fname = [file displayNameAtPath:path];
     NSLog(@"file name: %@", fname);
     
-    [body appendFormat:@"%@\r\n", startBoundary];
-    [body appendFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n", key];
-    [body appendFormat:@"%@\r\n", val];
-    [body appendFormat:@"%@\r\n", startBoundary];
+    
+    
     [body appendFormat:@"Content-Disposition: from-data; name=\"%@\"; filename=\"%@\"\r\n", input, fname];
     [body appendFormat:@"Content-Type: image/jpeg, image/gif, image/pjpeg\r\n\r\n"];
     NSString *end = [[NSString alloc] initWithFormat:@"\r\n%@", endBoundary];
     
-    NSMutableData *myRequestData = [NSMutableData data];
-    [myRequestData appendData:[body dataUsingEncoding:NSUTF8StringEncoding]];
-    [myRequestData appendData:photo];
-    [myRequestData appendData:[end dataUsingEncoding:NSUTF8StringEncoding]];
     
-    
-    /*NSEnumerator *dataKey = [data keyEnumerator];
-     for (NSObject *param in dataKey) {
-     //NSLog(@"%@", [NSJSONSerialization isValidJSONObject:[data objectForKey:param]]?@"YES":@"NO");
-     if ([NSJSONSerialization isValidJSONObject:[data objectForKey:param]]) {
-     jsonData = [NSJSONSerialization dataWithJSONObject:[data objectForKey:param] options:NSJSONWritingPrettyPrinted error:&error];
-     json = [[NSString alloc] initWithData: jsonData encoding:NSUTF8StringEncoding];
-     strData = [NSString stringWithFormat:@"&%@=%@", param, json];
-     postString = [postString stringByAppendingString:strData];
-     } else {
-     strData = [NSString stringWithFormat:@"&%@=%@", param, [data objectForKey:param]];
-     postString = [postString stringByAppendingString:strData];
-     }
-     }*/
-    
-    //NSLog(@"%@", postString);
+    [requestData appendData:[body dataUsingEncoding:NSUTF8StringEncoding]];
+    [requestData appendData:photo];
+    [requestData appendData:[end dataUsingEncoding:NSUTF8StringEncoding]];
     
     NSLog(@"Traversal success!");
     
-    NSString *httpHeader = @"Content-type";
-    NSString *httpValue = @"application/x-www-form-urlencoded";
-    httpHeader = [httpHeader stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    httpValue = [httpValue stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    
     NSString *content = [[NSString alloc] initWithFormat:@"multipart/form-data; boundary=%@", boundaryMark];
-    
-    //NSData *postData = [postString dataUsingEncoding:NSUTF8StringEncoding];
-    
     [request setValue:content forHTTPHeaderField:@"Content-Type"];
-    [request setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[myRequestData length]] forHTTPHeaderField:@"Content-Length"];
+    [request setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[requestData length]] forHTTPHeaderField:@"Content-Length"];
     
     [request setHTTPMethod:@"POST"];
-    [request setHTTPBody:myRequestData];
-    //[request setValue:httpValue forHTTPHeaderField:httpHeader];
+    [request setHTTPBody:requestData];
     
     NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
     
