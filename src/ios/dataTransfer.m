@@ -15,13 +15,7 @@
     NSLog(@"%@", postURL);
     NSLog(@"%@", postData);
     
-    /*NSFileManager *file = [NSFileManager defaultManager];
-     if ([file fileExistsAtPath:strPath] == YES) {
-     NSLog(@"file is Exists!");
-     [file contentsAtPath:strPath];
-     }
-     
-     NSDictionary *fileAttr = [file attributesOfItemAtPath:strPath error:NULL];
+    /*NSDictionary *fileAttr = [file attributesOfItemAtPath:strPath error:NULL];
      if(fileAttr!=nil){
      NSLog(@"文件大小:%llu bytes",[[fileAttr objectForKey:NSFileSize] unsignedLongLongValue]);
      }*/
@@ -38,8 +32,16 @@
     strURL = [strURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: [NSURL URLWithString:strURL]];
     NSMutableData *requestData = [NSMutableData data];
+    NSMutableString *photoPath = [[NSMutableString alloc] init];
+    NSMutableString *voicePath = [[NSMutableString alloc] init];
+    NSFileManager *fileHandle = [NSFileManager defaultManager];
+    NSData *file = [[NSData alloc] init];
     NSData *jsonData = [[NSData alloc] init];
     NSString *jsonStr;
+    NSString *inputType = [[NSString alloc] init];
+    NSString *filename = [[NSString alloc] init];
+    NSString *CRNL = @"\r\n";
+    NSString *content;
     NSError *error;
     
     NSString *boundaryMark = @"0xAAbbCCddEE";
@@ -63,39 +65,69 @@
         }
     }
     
-    NSLog(@"%@", body);
-    
-    NSMutableString *path = [[NSMutableString alloc] initWithString:[photoURL objectAtIndex:1]];
-    
-    [path deleteCharactersInRange:NSMakeRange(0, 7)];
-    NSFileManager *file = [NSFileManager defaultManager];
-    if ([file fileExistsAtPath:path] == YES) {
-        NSLog(@"file is exists!");
-        [file contentsAtPath:path];
-    }
-    NSData *photo = [[NSData alloc] initWithContentsOfFile:path];
-    
-    NSString *input = @"file";
-    NSString *fname = [file displayNameAtPath:path];
-    NSLog(@"file name: %@", fname);
-    
-    
-    
-    [body appendFormat:@"Content-Disposition: from-data; name=\"%@\"; filename=\"%@\"\r\n", input, fname];
-    [body appendFormat:@"Content-Type: image/jpeg, image/gif, image/pjpeg\r\n\r\n"];
-    NSString *end = [[NSString alloc] initWithFormat:@"\r\n%@", endBoundary];
-    
-    
     [requestData appendData:[body dataUsingEncoding:NSUTF8StringEncoding]];
-    [requestData appendData:photo];
+    NSLog(@"Parameters Assemble Success!");
+    
+    if (photoURL != nil) {
+        NSLog(@"begin to handle photoURL!");
+        for (int i = 1; i < [photoURL count]; i++) {
+            photoPath = [NSMutableString stringWithFormat:@"%@", [photoURL objectAtIndex:i]];
+            [photoPath deleteCharactersInRange:NSMakeRange(0, 7)];
+            NSLog(@"%@", photoPath);
+            
+            if ([fileHandle fileExistsAtPath:photoPath] == YES) {
+                body = [[NSMutableString alloc] init];
+                [fileHandle contentsAtPath:photoPath];
+                file = [[NSData alloc] initWithContentsOfFile:photoPath];
+                inputType = [NSString stringWithFormat:@"file%d", (i-1)];
+                filename = [fileHandle displayNameAtPath:photoPath];
+                
+                [body appendFormat:@"%@\r\n", startBoundary];
+                [body appendFormat:@"Content-Disposition: from-data; name=\"%@\"; filename=\"%@\"\r\n", inputType, filename];
+                [body appendFormat:@"Content-Type: image/jpeg, image/gif, image/pjpeg\r\n\r\n"];
+                [requestData appendData:[body dataUsingEncoding:NSUTF8StringEncoding]];
+                [requestData appendData:file];
+                [requestData appendData:[CRNL dataUsingEncoding:NSUTF8StringEncoding]];
+            } else {
+                NSLog(@"photo path is wrong!");
+            }
+        }
+    }
+    
+    NSLog(@"Photo Assemble Success!");
+    
+    if (voiceURL != nil) {
+        NSLog(@"begin to handle voiceURL!");
+        for (int i = 1; i < [voiceURL count]; i++) {
+            voicePath = [NSMutableString stringWithFormat:@"%@", [voiceURL objectAtIndex:i]];
+            [voicePath deleteCharactersInRange:NSMakeRange(0, 7)];
+            NSLog(@"%@", voicePath);
+            
+            if ([fileHandle fileExistsAtPath:voicePath] == YES) {
+                body = [[NSMutableString alloc] init];
+                [fileHandle contentsAtPath:voicePath];
+                file = [[NSData alloc] initWithContentsOfFile:voicePath];
+                inputType = [NSString stringWithFormat:@"file%d", (i-1)];
+                filename = [fileHandle displayNameAtPath:voicePath];
+                
+                [body appendFormat:@"%@\r\n", startBoundary];
+                [body appendFormat:@"Content-Disposition: from-data; name=\"%@\"; filename=\"%@\"\r\n", inputType, filename];
+                [body appendFormat:@"Content-Type: image/jpeg, image/gif, image/pjpeg\r\n\r\n"];
+                [requestData appendData:[body dataUsingEncoding:NSUTF8StringEncoding]];
+                [requestData appendData:file];
+                [requestData appendData:[CRNL dataUsingEncoding:NSUTF8StringEncoding]];
+            } else {
+                NSLog(@"photo path is wrong!");
+            }
+        }
+    }
+    
+    NSString *end = [[NSString alloc] initWithFormat:@"\r\n%@", endBoundary];
     [requestData appendData:[end dataUsingEncoding:NSUTF8StringEncoding]];
     
-    NSLog(@"Traversal success!");
-    
-    NSString *content = [[NSString alloc] initWithFormat:@"multipart/form-data; boundary=%@", boundaryMark];
+    content = [[NSString alloc] initWithFormat:@"multipart/form-data; boundary=%@", boundaryMark];
     [request setValue:content forHTTPHeaderField:@"Content-Type"];
     [request setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[requestData length]] forHTTPHeaderField:@"Content-Length"];
-    
     [request setHTTPMethod:@"POST"];
     [request setHTTPBody:requestData];
     
@@ -133,4 +165,3 @@
     
     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }
-@end
