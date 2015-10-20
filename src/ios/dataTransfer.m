@@ -70,7 +70,7 @@
     
     if (photoURL != nil) {
         NSLog(@"begin to handle photoURL!");
-        for (int i = 1; i < [photoURL count]; i++) {
+        for (int i = 0; i < [photoURL count]; i++) {
             photoPath = [NSMutableString stringWithFormat:@"%@", [photoURL objectAtIndex:i]];
             [photoPath deleteCharactersInRange:NSMakeRange(0, 7)];
             NSLog(@"%@", photoPath);
@@ -79,7 +79,7 @@
                 body = [[NSMutableString alloc] init];
                 [fileHandle contentsAtPath:photoPath];
                 file = [[NSData alloc] initWithContentsOfFile:photoPath];
-                inputType = [NSString stringWithFormat:@"file%d", (i-1)];
+                inputType = [NSString stringWithFormat:@"file%d", (i)];
                 filename = [fileHandle displayNameAtPath:photoPath];
                 
                 [body appendFormat:@"%@\r\n", startBoundary];
@@ -98,7 +98,7 @@
     
     if (voiceURL != nil) {
         NSLog(@"begin to handle voiceURL!");
-        for (int i = 1; i < [voiceURL count]; i++) {
+        for (int i = 0; i < [voiceURL count]; i++) {
             voicePath = [NSMutableString stringWithFormat:@"%@", [voiceURL objectAtIndex:i]];
             [voicePath deleteCharactersInRange:NSMakeRange(0, 7)];
             NSLog(@"%@", voicePath);
@@ -107,7 +107,7 @@
                 body = [[NSMutableString alloc] init];
                 [fileHandle contentsAtPath:voicePath];
                 file = [[NSData alloc] initWithContentsOfFile:voicePath];
-                inputType = [NSString stringWithFormat:@"file%d", (i-1)];
+                inputType = [NSString stringWithFormat:@"file%d", (i)];
                 filename = [fileHandle displayNameAtPath:voicePath];
                 
                 [body appendFormat:@"%@\r\n", startBoundary];
@@ -165,3 +165,4 @@
     
     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }
+@end
