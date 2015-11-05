@@ -63,7 +63,7 @@
     NSEnumerator *dataKey = [postData keyEnumerator];
     
     for (NSObject *param in dataKey) {
-        NSLog(@"%@", [NSJSONSerialization isValidJSONObject:[postData objectForKey:param]]?@"YES":@"NO");
+        NSLog(@"%@", [NSJSONSerialization isValidJSONObject:[postData objectForKey:param]]?@"Is Json":@"Not Json");
         if ([NSJSONSerialization isValidJSONObject:[postData objectForKey:param]]) {
             jsonData = [NSJSONSerialization dataWithJSONObject:[postData objectForKey:param] options:NSJSONWritingPrettyPrinted error:&error];
             jsonStr = [[NSString alloc] initWithData: jsonData encoding:NSUTF8StringEncoding];
