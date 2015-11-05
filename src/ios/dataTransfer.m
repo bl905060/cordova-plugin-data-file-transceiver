@@ -1,6 +1,15 @@
+//
+//  dataTransfer.m
+//  showapp
+//
+//  Created by LEIBI on 10/10/15.
+//
+//
+
 #import "dataTransfer.h"
 
 @implementation dataTransfer
+
 @synthesize callbackID;
 
 - (void)upload:(CDVInvokedUrlCommand *)command {
@@ -31,6 +40,9 @@
     
     strURL = [strURL stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: [NSURL URLWithString:strURL]];
+    NSURLSessionConfiguration *sessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfig delegate:self delegateQueue:nil];
+    
     NSMutableData *requestData = [NSMutableData data];
     NSMutableString *photoPath = [[NSMutableString alloc] init];
     NSMutableString *voicePath = [[NSMutableString alloc] init];
@@ -122,6 +134,8 @@
         }
     }
     
+    NSLog(@"Voice Assemble Success!");
+    
     NSString *end = [[NSString alloc] initWithFormat:@"\r\n%@", endBoundary];
     [requestData appendData:[end dataUsingEncoding:NSUTF8StringEncoding]];
     
@@ -131,35 +145,47 @@
     [request setHTTPMethod:@"POST"];
     [request setHTTPBody:requestData];
     
-    NSURLConnection *connection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
+    NSURLSessionUploadTask *dataTask = [session uploadTaskWithRequest:request fromData:requestData];
     
-    if (connection) {
+    [dataTask resume];
+    
+    if (dataTask) {
         self.responseData = [NSMutableData new];
     }
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveData:(nonnull NSData *)data {
+- (void)URLSession:(NSURLSession *)session
+          dataTask:(NSURLSessionDataTask *)dataTask
+    didReceiveData:(NSData *)data {
     [self.responseData appendData:data];
 }
 
-- (void)connection:(NSURLConnection *)connection didFailWithError:(nonnull NSError *)error {
-    NSLog(@"%@",[error localizedDescription]);
+- (void)URLSession:(NSURLSession *)session
+          dataTask:(NSURLSessionDataTask *)dataTask
+didReceiveResponse:(NSURLResponse *)response
+ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
+    NSLog(@"%@", response);
+    NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)response;
+    NSLog(@"statusCode:%ld", (long)httpResponse.statusCode);
+    completionHandler(NSURLSessionResponseAllow);
 }
 
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection {
+- (void)URLSession:(NSURLSession *)session
+              task:(NSURLSessionTask *)task
+didCompleteWithError:(NSError *)error {
     NSLog(@"upload is done!");
-    NSError *error;
+    NSLog(@"%@", [error localizedDescription]);
+    NSError *jsonError;
+    NSDictionary *response = [NSJSONSerialization JSONObjectWithData:self.responseData options:NSJSONReadingAllowFragments error:&jsonError];
     
-    NSDictionary *response = [NSJSONSerialization JSONObjectWithData:self.responseData options:NSJSONReadingAllowFragments error:&error];
+    NSString *error_desc = @"error_desc";
+    NSDictionary *status = [response objectForKey:@"status"];
+    NSLog(@"%@", status);
+    NSLog(@"%@", [status objectForKey: error_desc]);
     
-    //NSDictionary *status = [response objectForKey:@"status"];
-    //NSString *error_desc = @"error_desc";
-    //NSLog(@"%@", status);
-    //NSLog(@"%@", [status objectForKey: error_desc]);
+    NSString *callbackId = self.callbackID;
     
-    NSString* callbackId = self.callbackID;
-    
-    CDVPluginResult* pluginResult = [CDVPluginResult
+    CDVPluginResult *pluginResult = [CDVPluginResult
                                      resultWithStatus:CDVCommandStatus_OK
                                      messageAsDictionary:response];
     
