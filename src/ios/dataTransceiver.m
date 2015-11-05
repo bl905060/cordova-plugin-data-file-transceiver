@@ -1,5 +1,5 @@
 //
-//  dataTransfer.m
+//  dataTransceiver.m
 //  showapp
 //
 //  Created by LEIBI on 10/10/15.
@@ -30,6 +30,10 @@
      }*/
     
     [self startRequest:postURL withPostData:postData withPhotoPath:photoURL withVoicePath:voiceURL];
+}
+
+- (void)download:(CDVInvokedUrlCommand *)command {
+    
 }
 
 - (void)startRequest:(NSString *)strURL
@@ -174,20 +178,30 @@ didReceiveResponse:(NSURLResponse *)response
               task:(NSURLSessionTask *)task
 didCompleteWithError:(NSError *)error {
     NSLog(@"upload is done!");
-    NSLog(@"%@", [error localizedDescription]);
+
+    NSString *callbackId = self.callbackID;
+    CDVPluginResult *pluginResult;
     NSError *jsonError;
     NSDictionary *response = [NSJSONSerialization JSONObjectWithData:self.responseData options:NSJSONReadingAllowFragments error:&jsonError];
     
-    NSString *error_desc = @"error_desc";
+    /*NSString *error_desc = @"error_desc";
     NSDictionary *status = [response objectForKey:@"status"];
     NSLog(@"%@", status);
-    NSLog(@"%@", [status objectForKey: error_desc]);
+    NSLog(@"%@", [status objectForKey: error_desc]);*/
     
-    NSString *callbackId = self.callbackID;
-    
-    CDVPluginResult *pluginResult = [CDVPluginResult
-                                     resultWithStatus:CDVCommandStatus_OK
-                                     messageAsDictionary:response];
+    if (error) {
+        NSLog(@"error description: %@", [error localizedDescription]);
+        NSLog(@"error failure reason: %@", [error localizedFailureReason]);
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                         messageAsString:[error localizedDescription]];
+    } else if (jsonError) {
+        NSLog(@"json analysis is fail!");
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+                                         messageAsString:[jsonError localizedDescription]];
+    } else {
+        NSLog(@"data transceiver is OK!");
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:response];
+    }
     
     [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
 }

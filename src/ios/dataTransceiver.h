@@ -1,5 +1,5 @@
 //
-//  dataTransfer.h
+//  dataTransceiver.h
 //  showapp
 //
 //  Created by LEIBI on 10/10/15.
@@ -14,5 +14,6 @@
 @property(strong, nonatomic) NSString* callbackID;
 
 - (void)upload:(CDVInvokedUrlCommand*)command;
+- (void)download:(CDVInvokedUrlCommand*)command;
 
 @end
