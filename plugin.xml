@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-	id="cn.edu.hdu.cordova.dataTransfer" version="0.0.6">
+	id="cordova-plugin-data-file-transceiver" version="0.0.6">
 
-<name>Cordova data upload plugin</name>
+<name>Cordova data transceiver plugin</name>
 
 <license>HDU</license>
 
-<keywords>dataTransfer</keywords>
+<keywords>dataTransceiver</keywords>
 
 <description>Upload local data and file to remote server</description>
 
@@ -16,19 +16,19 @@
 	<engine name="cordova" version=">=3.3.0" />
 </engines>
 
-<js-module src="www/dataTransfer.js" name="dataTransfer.js">
-	<clobbers target="dataTransfer" />
+<js-module src="www/dataTransceiver.js" name="dataTransceiver.js">
+	<clobbers target="dataTransceiver" />
 </js-module>
 
 <!-- ios -->
 <platform name="ios">
 	<config-file target="config.xml" parent="/widget">
-		<feature name="dataTransfer">
-			<param name="ios-package" value="dataTransfer" />
+		<feature name="dataTransceiver">
+			<param name="ios-package" value="dataTransceiver" />
 		</feature>
 	</config-file>
 
-	<header-file src="src/ios/dataTransfer.h" />
-	<source-file src="src/ios/dataTransfer.m" />
+	<header-file src="src/ios/dataTransceiver.h" />
+	<source-file src="src/ios/dataTransceiver.m" />
 </platform>
 </plugin>

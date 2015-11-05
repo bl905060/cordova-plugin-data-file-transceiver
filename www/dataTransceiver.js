@@ -17,7 +17,7 @@ module.exports = {
         
         cordova.exec(successCallback,
                      errorCallback,
-                     "dataTransfer",
+                     "dataTransceiver",
                      "upload",
                      [postURL, postData, photoURL, voiceURL]);
     }
