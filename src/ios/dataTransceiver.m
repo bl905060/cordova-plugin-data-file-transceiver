@@ -6,9 +6,9 @@
 //
 //
 
-#import "dataTransfer.h"
+#import "dataTransceiver.h"
 
-@implementation dataTransfer
+@implementation dataTransceiver
 
 @synthesize callbackID;
 

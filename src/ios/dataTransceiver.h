@@ -8,9 +8,9 @@
 
 #import <Cordova/CDV.h>
 
-@interface dataTransfer : CDVPlugin <NSURLSessionDelegate, NSURLSessionTaskDelegate>
+@interface dataTransceiver : CDVPlugin <NSURLSessionDelegate, NSURLSessionTaskDelegate>
 
-@property (strong, nonatomic) NSMutableData *responseData;
+@property(strong, nonatomic) NSMutableData *responseData;
 @property(strong, nonatomic) NSString* callbackID;
 
 - (void)upload:(CDVInvokedUrlCommand*)command;
