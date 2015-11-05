@@ -5,13 +5,14 @@ module.exports = {
         
         if ((postData.photoURL != undefined) && !postData.voiceURL) {
             photoURL = postData.photoURL;
-            postData.photoURL = undefined;
         }
         if ((postData.voiceURL != undefined) && !postData.voiceURL) {
             voiceURL = postData.voiceURL;
-            postData.voiceURL = undefined;
         }
-            
+        
+        postData.photoURL = undefined;
+        postData.voiceURL = undefined;
+        
         //alert(photoURL);
         //alert(voiceURL);
         
