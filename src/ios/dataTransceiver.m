@@ -123,7 +123,7 @@
                 body = [[NSMutableString alloc] init];
                 [fileHandle contentsAtPath:voicePath];
                 file = [[NSData alloc] initWithContentsOfFile:voicePath];
-                inputType = [NSString stringWithFormat:@"file%d", (i)];
+                inputType = [NSString stringWithFormat:@"voice%d", (i)];
                 filename = [fileHandle displayNameAtPath:voicePath];
                 
                 [body appendFormat:@"%@\r\n", startBoundary];
