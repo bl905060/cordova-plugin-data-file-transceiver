@@ -195,7 +195,7 @@ didCompleteWithError:(NSError *)error {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                          messageAsString:[error localizedDescription]];
     } else if (jsonError) {
-        NSLog(@"json analysis is fail!");
+        NSLog(@"response json analysis is fail!");
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                          messageAsString:[jsonError localizedDescription]];
     } else {
