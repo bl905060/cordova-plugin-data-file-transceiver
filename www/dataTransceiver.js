@@ -3,18 +3,20 @@ module.exports = {
         var photoURL = new Array();
         var voiceURL = new Array();
         
-        if ((postData.photoURL != undefined) && postData.voiceURL) {
+        if ((postData.photoURL != undefined) && (postData.photoURL.length > 0)) {
             photoURL = postData.photoURL;
         }
-        if ((postData.voiceURL != undefined) && postData.voiceURL) {
+        if ((postData.voiceURL != undefined) && (postData.voiceURL.length > 0)) {
             voiceURL = postData.voiceURL;
         }
         
+        //alert("photoURL length: " + postData.photoURL.length);
+        //alert("photoURL: " + postData.photoURL);
+        //alert("voiceURL length: " + postData.voiceURL.length);
+        //alert("voiceURL: " + postData.voiceURL);
+        
         postData.photoURL = undefined;
         postData.voiceURL = undefined;
-        
-        //alert(photoURL);
-        //alert(voiceURL);
         
         cordova.exec(successCallback,
                      errorCallback,

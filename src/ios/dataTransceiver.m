@@ -10,33 +10,40 @@
 
 @implementation dataTransceiver
 
-@synthesize callbackID;
-
 - (void)upload:(CDVInvokedUrlCommand *)command {
-    self.callbackID = [command callbackId];
+    self->callbackID = [command callbackId];
     NSString *postURL = [[command arguments] objectAtIndex:0];
     NSDictionary *postData = [[command arguments] objectAtIndex:1];
     NSArray *photoURL = [[NSArray alloc] initWithArray:[[command arguments] objectAtIndex:2]];
     NSArray *voiceURL = [[NSArray alloc] initWithArray:[[command arguments] objectAtIndex:3]];
     
-    NSLog(@"%@", photoURL);
-    NSLog(@"%@", voiceURL);
-    NSLog(@"%@", postURL);
-    NSLog(@"%@", postData);
+    NSLog(@"photoURL: %@", photoURL);
+    NSLog(@"voiceURL: %@", voiceURL);
+    NSLog(@"postURL: %@", postURL);
+    NSLog(@"postData: %@", postData);
     
     /*NSDictionary *fileAttr = [file attributesOfItemAtPath:strPath error:NULL];
      if(fileAttr!=nil){
      NSLog(@"文件大小:%llu bytes",[[fileAttr objectForKey:NSFileSize] unsignedLongLongValue]);
      }*/
     
-    [self startRequest:postURL withPostData:postData withPhotoPath:photoURL withVoicePath:voiceURL];
+    [self startUploadRequest:postURL withPostData:postData withPhotoPath:photoURL withVoicePath:voiceURL];
 }
 
 - (void)download:(CDVInvokedUrlCommand *)command {
+    self->callbackID = [command callbackId];
+    NSArray *downloadURL = [[command arguments] objectAtIndex:0];
+    
+    NSLog(@"downloadURL: %@", downloadURL);
+    
+    [self startDownloadRequest:downloadURL];
+}
+
+- (void)startDownloadRequest:(NSArray *)downloadURL {
     
 }
 
-- (void)startRequest:(NSString *)strURL
+- (void)startUploadRequest:(NSString *)strURL
         withPostData:(NSDictionary *)postData
        withPhotoPath:(NSArray *)photoURL
        withVoicePath:(NSArray *)voiceURL {
@@ -88,24 +95,29 @@
         NSLog(@"begin to handle photoURL!");
         for (int i = 0; i < [photoURL count]; i++) {
             photoPath = [NSMutableString stringWithFormat:@"%@", [photoURL objectAtIndex:i]];
-            [photoPath deleteCharactersInRange:NSMakeRange(0, 7)];
-            NSLog(@"%@", photoPath);
-            
-            if ([fileHandle fileExistsAtPath:photoPath] == YES) {
-                body = [[NSMutableString alloc] init];
-                [fileHandle contentsAtPath:photoPath];
-                file = [[NSData alloc] initWithContentsOfFile:photoPath];
-                inputType = [NSString stringWithFormat:@"file%d", (i)];
-                filename = [fileHandle displayNameAtPath:photoPath];
+            NSRange filePrefix = [photoPath rangeOfString:@"file://"];
+            if (filePrefix.length > 0) {
+                [photoPath deleteCharactersInRange:NSMakeRange(0, 7)];
+                NSLog(@"%@", photoPath);
                 
-                [body appendFormat:@"%@\r\n", startBoundary];
-                [body appendFormat:@"Content-Disposition: from-data; name=\"%@\"; filename=\"%@\"\r\n", inputType, filename];
-                [body appendFormat:@"Content-Type: image/jpeg, image/gif, image/pjpeg\r\n\r\n"];
-                [requestData appendData:[body dataUsingEncoding:NSUTF8StringEncoding]];
-                [requestData appendData:file];
-                [requestData appendData:[CRNL dataUsingEncoding:NSUTF8StringEncoding]];
+                if ([fileHandle fileExistsAtPath:photoPath] == YES) {
+                    body = [[NSMutableString alloc] init];
+                    [fileHandle contentsAtPath:photoPath];
+                    file = [[NSData alloc] initWithContentsOfFile:photoPath];
+                    inputType = [NSString stringWithFormat:@"file%d", (i)];
+                    filename = [fileHandle displayNameAtPath:photoPath];
+                    
+                    [body appendFormat:@"%@\r\n", startBoundary];
+                    [body appendFormat:@"Content-Disposition: from-data; name=\"%@\"; filename=\"%@\"\r\n", inputType, filename];
+                    [body appendFormat:@"Content-Type: image/jpeg, image/gif, image/pjpeg\r\n\r\n"];
+                    [requestData appendData:[body dataUsingEncoding:NSUTF8StringEncoding]];
+                    [requestData appendData:file];
+                    [requestData appendData:[CRNL dataUsingEncoding:NSUTF8StringEncoding]];
+                } else {
+                    NSLog(@"photograph is not exist!");
+                }
             } else {
-                NSLog(@"photo path is wrong!");
+                NSLog(@"photo file URL is worng!");
             }
         }
     }
@@ -116,24 +128,29 @@
         NSLog(@"begin to handle voiceURL!");
         for (int i = 0; i < [voiceURL count]; i++) {
             voicePath = [NSMutableString stringWithFormat:@"%@", [voiceURL objectAtIndex:i]];
-            [voicePath deleteCharactersInRange:NSMakeRange(0, 7)];
-            NSLog(@"%@", voicePath);
-            
-            if ([fileHandle fileExistsAtPath:voicePath] == YES) {
-                body = [[NSMutableString alloc] init];
-                [fileHandle contentsAtPath:voicePath];
-                file = [[NSData alloc] initWithContentsOfFile:voicePath];
-                inputType = [NSString stringWithFormat:@"voice%d", (i)];
-                filename = [fileHandle displayNameAtPath:voicePath];
+            NSRange filePerfix = [voicePath rangeOfString:@"file://"];
+            if (filePerfix.length > 0) {
+                [voicePath deleteCharactersInRange:NSMakeRange(0, 7)];
+                NSLog(@"%@", voicePath);
                 
-                [body appendFormat:@"%@\r\n", startBoundary];
-                [body appendFormat:@"Content-Disposition: from-data; name=\"%@\"; filename=\"%@\"\r\n", inputType, filename];
-                [body appendFormat:@"Content-Type: image/jpeg, image/gif, image/pjpeg\r\n\r\n"];
-                [requestData appendData:[body dataUsingEncoding:NSUTF8StringEncoding]];
-                [requestData appendData:file];
-                [requestData appendData:[CRNL dataUsingEncoding:NSUTF8StringEncoding]];
+                if ([fileHandle fileExistsAtPath:voicePath] == YES) {
+                    body = [[NSMutableString alloc] init];
+                    [fileHandle contentsAtPath:voicePath];
+                    file = [[NSData alloc] initWithContentsOfFile:voicePath];
+                    inputType = [NSString stringWithFormat:@"voice%d", (i)];
+                    filename = [fileHandle displayNameAtPath:voicePath];
+                    
+                    [body appendFormat:@"%@\r\n", startBoundary];
+                    [body appendFormat:@"Content-Disposition: from-data; name=\"%@\"; filename=\"%@\"\r\n", inputType, filename];
+                    [body appendFormat:@"Content-Type: image/jpeg, image/gif, image/pjpeg\r\n\r\n"];
+                    [requestData appendData:[body dataUsingEncoding:NSUTF8StringEncoding]];
+                    [requestData appendData:file];
+                    [requestData appendData:[CRNL dataUsingEncoding:NSUTF8StringEncoding]];
+                } else {
+                    NSLog(@"audio record is not exist!");
+                }
             } else {
-                NSLog(@"photo path is wrong!");
+                NSLog(@"audio file URL is wrong!");
             }
         }
     }
@@ -154,14 +171,14 @@
     [dataTask resume];
     
     if (dataTask) {
-        self.responseData = [NSMutableData new];
+        self->responseData = [NSMutableData new];
     }
 }
 
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data {
-    [self.responseData appendData:data];
+    [self->responseData appendData:data];
 }
 
 - (void)URLSession:(NSURLSession *)session
@@ -179,10 +196,10 @@ didReceiveResponse:(NSURLResponse *)response
 didCompleteWithError:(NSError *)error {
     NSLog(@"upload is done!");
 
-    NSString *callbackId = self.callbackID;
+    NSString *callbackId = self->callbackID;
     CDVPluginResult *pluginResult;
     NSError *jsonError;
-    NSDictionary *response = [NSJSONSerialization JSONObjectWithData:self.responseData options:NSJSONReadingAllowFragments error:&jsonError];
+    NSDictionary *response = [NSJSONSerialization JSONObjectWithData:self->responseData options:NSJSONReadingAllowFragments error:&jsonError];
     
     /*NSString *error_desc = @"error_desc";
     NSDictionary *status = [response objectForKey:@"status"];
