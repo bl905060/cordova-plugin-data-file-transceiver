@@ -40,7 +40,7 @@
 }
 
 - (void)startDownloadRequest:(NSArray *)downloadURL {
-    
+    NSLog(@"begin to download!");
 }
 
 - (void)startUploadRequest:(NSString *)strURL

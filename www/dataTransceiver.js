@@ -23,5 +23,13 @@ module.exports = {
                      "dataTransceiver",
                      "upload",
                      [postURL, postData, photoURL, voiceURL]);
+    },
+    
+    download: function(successCallback, errorCallback) {
+        cordova.exec(successCallback,
+                     errorCallback,
+                     "dataTransceiver",
+                     "download",
+                     []);
     }
 };
