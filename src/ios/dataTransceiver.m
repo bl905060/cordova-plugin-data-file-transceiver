@@ -102,7 +102,7 @@
             [body appendFormat:@"%@\r\n", [postData objectForKey:param]];
         }
     }
-    [body deleteCharactersInRange:NSMakeRange(([body length] - 1), 1)];
+    
     [requestData appendData:[body dataUsingEncoding:NSUTF8StringEncoding]];
     NSLog(@"Parameters Assemble Success!");
     
