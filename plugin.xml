@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-	id="cordova-plugin-data-file-transceiver" version="0.0.7">
+	id="cordova-plugin-data-file-transceiver" version="0.0.8">
 
 <name>Cordova data transceiver plugin</name>
 

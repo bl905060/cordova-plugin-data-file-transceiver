@@ -7,11 +7,16 @@
 //
 
 #import <Cordova/CDV.h>
+#import "sqlite3.h"
 
 @interface dataTransceiver : CDVPlugin <NSURLSessionDelegate, NSURLSessionTaskDelegate>
 {
     NSMutableData *responseData;
-    NSString* callbackID;
+    NSString *callbackID;
+    NSString *operateFlag;
+    NSString *timestamp;
+
+    sqlite3 *database;
 }
 
 //@property(strong, nonatomic) NSMutableData *responseData;
