@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
-	id="cordova-plugin-data-file-transceiver" version="0.0.8">
+	id="cordova-plugin-data-file-transceiver" version="0.0.9">
 
 <name>Cordova data transceiver plugin</name>
 
@@ -19,6 +19,8 @@
 <js-module src="www/dataTransceiver.js" name="dataTransceiver.js">
 	<clobbers target="dataTransceiver" />
 </js-module>
+
+<dependency id="cordova-plugin-operate-plist" url="https://github.com/bl905060/cordova-plugin-operate-plist.git" />
 
 <!-- ios -->
 <platform name="ios">

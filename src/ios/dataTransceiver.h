@@ -8,14 +8,23 @@
 
 #import <Cordova/CDV.h>
 #import "sqlite3.h"
+#import "operatePlist.h"
+#import "KVNProgress.h"
 
 @interface dataTransceiver : CDVPlugin <NSURLSessionDelegate, NSURLSessionTaskDelegate>
 {
     NSMutableData *responseData;
     NSString *callbackID;
     NSString *operateFlag;
-    NSString *timestamp;
-
+    NSString *receivedTimestamp;
+    NSString *currentTimestamp;
+    
+    //NSString *postURL;
+    //NSArray *photoURL;
+    //NSArray *voiceURL;
+    
+    BOOL downloadFinish;
+    
     sqlite3 *database;
 }
 
